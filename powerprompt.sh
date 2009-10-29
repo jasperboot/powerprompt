@@ -129,7 +129,9 @@ if [[ "$-" == *i* ]]; then if [[ "$is" == bash ]]; then
 	# Powerprompt's default pwd
 	powerpwd() 
 	{
-		local pwdmaxlen=$(($COLUMNS/3))
+		local pp_cols="$COLUMNS"
+		if [[ "$pp_cols" = "" ]]; then pp_cols=80; fi
+		local pwdmaxlen=$(($pp_cols/3))
 		local _w="${PWD/$HOME/~}"
 		# If needed strip first (evt. second) dir down to one char
 		_w=$(_pwd_slim "${_w}" $pwdmaxlen)
@@ -188,7 +190,7 @@ if [[ "$-" == *i* ]]; then if [[ "$is" == bash ]]; then
 	pp_optional_info()
 	{
 		local optionals=''
-		local screens=$(screen -ls | grep -c Detach )
+		local screens=$(screen -ls 2> /dev/null | grep -c Detach )
 		local jobs_running=$(jobs -r | wc -l )
 		local jobs_stopped=$(jobs -s | wc -l )
 		
@@ -206,6 +208,7 @@ if [[ "$-" == *i* ]]; then if [[ "$is" == bash ]]; then
 	{
 		local pwdmaxlen=30
 		local _w="${PWD/$HOME/~}"
+		local host="${HOSTNAME%%.*}"
 
 		# If needed strip first (evt. second) dir down to one char
 		_w=$(_pwd_slim "${_w}" $pwdmaxlen)
@@ -215,11 +218,11 @@ if [[ "$-" == *i* ]]; then if [[ "$is" == bash ]]; then
 		# Return correct escape sequences for terminal
 		case "$TERM" in
 		screen*)
-			_screenterm_print "Screen:\005 ${USER}@${HOST} (\005t)"
+			_screenterm_print "Screen:\005 ${USER}@${host} (\005t)"
 			;;
 		*)
-			_term_print "${USER}@${HOST}" ICON
-			_term_print "${USER}@${HOST}:${_w}" TITLE
+			_term_print "${USER}@${host}" ICON
+			_term_print "${USER}@${host}:${_w}" TITLE
 			;;
 		esac
 	}
@@ -336,28 +339,26 @@ if [[ "$-" == *i* ]]; then if [[ "$is" == bash ]]; then
 		}
 		
 		# Setup colordata:
-		if [ "$COLORTERM" -gt 0 ]; then
-			local COLOR_WHITE='\e[1;37m'
-			local COLOR_LIGHTGRAY='\e[0;37m'
-			local COLOR_GRAY='\e[1;30m'
-			local COLOR_BLACK='\e[0;30m'
-			local COLOR_RED='\e[0;31m'
-			local COLOR_LIGHTRED='\e[1;31m'
-			local COLOR_GREEN='\e[0;32m'
-			local COLOR_LIGHTGREEN='\e[1;32m'
-			local COLOR_BROWN='\e[0;33m'
-			local COLOR_YELLOW='\e[1;33m'
-			local COLOR_BLUE='\e[0;34m'
-			local COLOR_LIGHTBLUE='\e[1;34m'
-			local COLOR_PURPLE='\e[0;35m'
-			local COLOR_PINK='\e[1;35m'
-			local COLOR_CYAN='\e[0;36m'
-			local COLOR_LIGHTCYAN='\e[1;36m'
+		local COLOR_WHITE='\e[1;37m'
+		local COLOR_LIGHTGRAY='\e[0;37m'
+		local COLOR_GRAY='\e[1;30m'
+		local COLOR_BLACK='\e[0;30m'
+		local COLOR_RED='\e[0;31m'
+		local COLOR_LIGHTRED='\e[1;31m'
+		local COLOR_GREEN='\e[0;32m'
+		local COLOR_LIGHTGREEN='\e[1;32m'
+		local COLOR_BROWN='\e[0;33m'
+		local COLOR_YELLOW='\e[1;33m'
+		local COLOR_BLUE='\e[0;34m'
+		local COLOR_LIGHTBLUE='\e[1;34m'
+		local COLOR_PURPLE='\e[0;35m'
+		local COLOR_PINK='\e[1;35m'
+		local COLOR_CYAN='\e[0;36m'
+		local COLOR_LIGHTCYAN='\e[1;36m'
 
-			local COLOR_BOLD='\e[1m'
-			local COLOR_DEFAULT='\e[0m'
-			local COLOR_INVERSE='\e[7m'
-		fi
+		local COLOR_BOLD='\e[1m'
+		local COLOR_DEFAULT='\e[0m'
+		local COLOR_INVERSE='\e[7m'
 
 		# Set default configuration
 		# Override these in /etc/powerprompt.conf and/or ~/powerprompt.conf

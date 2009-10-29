@@ -33,7 +33,7 @@
 #
 
 # Only execute for interactive shells and only if this is bash
-if [[ "$-" == *i* ]]; then if [[ "${BASH##*/}" == "bash" ]]; then
+if [[ "$-" == *i* ]]; then if [[ "$is" == bash ]]; then
 
 ###
 # Utility functions

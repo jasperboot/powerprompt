@@ -1,7 +1,7 @@
 #!/bin/bash
 # Filename:      powerprompt.sh
 # Maintainer:    Jasper Boot <jasper.boot+powerprompt@gmail.com>
-# Last Modified: 2008-09-11 by Jasper Boot
+# Last Modified: 2009-10-29 by Jasper Boot
 
 # Description: A powerfull prompt with the 'less is more principle' for colors
 #              If nothing special is happening, prompt will be all uncolored
@@ -361,11 +361,13 @@ if [[ "$-" == *i* ]]; then if [[ "${BASH##*/}" == "bash" ]]; then
 		local COLOR_INVERSE='\e[7m'
 
 		# Set default configuration
-		# Override these in /etc/powerprompt.conf and/or ~/powerprompt.conf
+		# Override these in /etc/powerprompt.conf and/or ~/.powerprompt.conf
 		PP_PWD_ELLIPSIS='..'
 		local PP_PROMPT_START=''	# Can be set to '[' as some people prefer
 		local PP_PROMPT_END=''		# Can be set to ']' as some people prefer
-		local PP_PROMPT_CHAR='default' # (default=">" and " #", bash=bash's defaults, currently "$" and "#")
+		local PP_PROMPT_SPLITTER=':'	# Can be set to ' ' as some people prefer
+		local PP_PROMPT_CHAR='default'	# 'default' = ">" and " #", 'bash' = bash's defaults, currently "$" and "#"
+		local PP_PROMPT_PATH='default'	# 'default', 'bash', 'toplevel', 'fish', 'short', 'physical'
 		#  Colors:
 		#  - User session type (can be local)
 		local PPCLR_USER_ROOT_SUDO="${COLOR_RED}"
@@ -392,7 +394,7 @@ if [[ "$-" == *i* ]]; then if [[ "${BASH##*/}" == "bash" ]]; then
 		# Load systemwide configuration
 		test -s /etc/powerprompt.conf && . /etc/powerprompt.conf
 		# Load user configuration
-		test -s ~/powerprompt.conf && . ~/powerprompt.conf
+		test -s ~/.powerprompt.conf && . ~/.powerprompt.conf
 		
 		# Initialize other vars
 		if [ ${#tty} -eq 0 ]; then tty=$(tty); fi
@@ -408,19 +410,36 @@ if [[ "$-" == *i* ]]; then if [[ "${BASH##*/}" == "bash" ]]; then
 		local _u="\[${PPCLR_USER_CURRENT}\]\u\[${COLOR_DEFAULT}\]"
 		local _a="\[${PPCLR_CONN_CURRENT}\]@\[${COLOR_DEFAULT}\]"
 		local _h="\[\$(ppclr_load_current)\]\h\[${COLOR_DEFAULT}\]"
+		local _c="${PP_PROMPT_SPLITTER}"
 
 		local _w
-		# With Powerprompt's default prompt path
-		_w="\[\$(ppclr_wdperm_current)\]\$(powerpwd)\[${COLOR_DEFAULT}\]"
-		# With Bash's default prompt path
-		# _w="\[\$(ppclr_wdperm_current)\]\w\[${COLOR_DEFAULT}\]"
-		# With Fish's default prompt path
-		# _w="\[\$(ppclr_wdperm_current)\]\$(fishpwd)\[${COLOR_DEFAULT}\]"
-		# With short path on prompt (max 2 dirs)
-		# _w="\[\$(ppclr_wdperm_current)\]\$(spwd)\[${COLOR_DEFAULT}\]"
-		# With physical path even if reached over sym link
-		# _w="\[\$(ppclr_wdperm_current)\]\$(pwd -P)\[${COLOR_DEFAULT}\]"
-
+		case $PP_PROMPT_PATH in
+			bash)
+				# With Bash's default prompt path
+				_w="\[\$(ppclr_wdperm_current)\]\w\[${COLOR_DEFAULT}\]"
+				;;
+			toplevel)
+				# With only toplevel directory
+				_w="\[\$(ppclr_wdperm_current)\]\W\[${COLOR_DEFAULT}\]"
+				;;
+			fish)
+				# With Fish's default prompt path
+				_w="\[\$(ppclr_wdperm_current)\]\$(fishpwd)\[${COLOR_DEFAULT}\]"
+				;;
+			short)
+				# With short path on prompt (max 2 dirs)
+				_w="\[\$(ppclr_wdperm_current)\]\$(spwd)\[${COLOR_DEFAULT}\]"
+				;;
+			physical)
+				# With physical path even if reached over sym link
+				_w="\[\$(ppclr_wdperm_current)\]\$(pwd -P)\[${COLOR_DEFAULT}\]"
+				;;
+			*)
+				# With Powerprompt's default prompt path
+				_w="\[\$(ppclr_wdperm_current)\]\$(powerpwd)\[${COLOR_DEFAULT}\]"
+				;;
+		esac
+			
 		local _o="\[${PPCLR_OPTIONALS}\]\$(pp_optional_info)\[${COLOR_DEFAULT}\]"
 		local _p="\[${PPCLR_USER_CURRENT}\]${PP_PROMPT_SIGN}\[${COLOR_DEFAULT}\]"
 		local _e="${PP_PROMPT_END}"
@@ -430,7 +449,7 @@ if [[ "$-" == *i* ]]; then if [[ "${BASH##*/}" == "bash" ]]; then
 			local _t="\[\$(pp_termtext)\]"
 		fi
 		
-		PS1="${_s}${_t}${_u}${_a}${_h}:${_w}${_e}${_o}${_p} "
+		PS1="${_s}${_t}${_u}${_a}${_h}${_c}${_w}${_e}${_o}${_p} "
 	}
 
 	set_bash_powerprompt

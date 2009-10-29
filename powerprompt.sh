@@ -62,7 +62,7 @@ if [[ "$-" == *i* ]]; then if [[ "${BASH##*/}" == "bash" ]]; then
 	# Returns escape sequence for screen hardline status
 	_screenterm_print()
 	{
-		echo -en "\e_\e\\";
+		echo -en "\e_$1\e\\";
 	}
 	
 	# Shortens the first (if needed) and second (if needed) dir to 1 char
@@ -218,7 +218,7 @@ if [[ "$-" == *i* ]]; then if [[ "${BASH##*/}" == "bash" ]]; then
 		# Return correct escape sequences for terminal
 		case "$TERM" in
 		screen*)
-			_screenterm_print "Screen:\005 ${USER}@${host} (\005t)"
+			_screenterm_print "${USER}@${host}:${_w}"
 			;;
 		*)
 			_term_print "${USER}@${host}" ICON

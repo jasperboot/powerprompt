@@ -1,12 +1,12 @@
 #!/bin/bash
 # Filename:      powerprompt.sh
 # Maintainer:    Jasper Boot <jasper.boot+powerprompt@gmail.com>
-# Last Modified: 2009-10-29 by Jasper Boot
+# Last Modified: 2011-04-28 by Jasper Boot
 
 # Description: A powerfull prompt with the 'less is more principle' for colors
 #              If nothing special is happening, prompt will be all uncolored
 #
-# Current Format: user@host:working directory [dynamic section]> 
+# Current Format: user@host:pwd [git section] [dynamic section]> 
 # USER:
 #   Red       == Root(UID 0) Login shell (i.e. sudo bash)
 #   Light Red == Root(UID 0) Login shell (i.e. su -l or direct login)
@@ -23,6 +23,8 @@
 #   Red	      == LoadAvg last minute >= 2
 #   Yellow    == LoadAvg last minute >= 1
 #   Default   == LoadAvg last minute >= 0
+# GIT SECTION (only shows when git-completion is installed and when pwd is in a git repo)
+#    (branch)    === Shows current git branch
 # DYNAMIC SECTION
 #    (Yellow; If count is zero for any of the following, it will not appear)
 #    [scr:#]     === Number of detached screen sessions
@@ -368,6 +370,7 @@ if [[ "$-" == *i* ]]; then if [[ "${BASH##*/}" == "bash" ]]; then
 		local PP_PROMPT_SPLITTER=':'	# Can be set to ' ' as some people prefer
 		local PP_PROMPT_CHAR='default'	# 'default' = ">" and " #", 'bash' = bash's defaults, currently "$" and "#"
 		local PP_PROMPT_PATH='default'	# 'default', 'bash', 'toplevel', 'fish', 'short', 'physical'
+		local PP_GITINFO_FORMAT=" (\[${COLOR_DEFAULT}\]%s\[${COLOR_DEFAULT}\])"
 		#  Colors:
 		#  - User session type (can be local)
 		local PPCLR_USER_ROOT_SUDO="${COLOR_RED}"
@@ -440,16 +443,24 @@ if [[ "$-" == *i* ]]; then if [[ "${BASH##*/}" == "bash" ]]; then
 				;;
 		esac
 			
+		local _g
+		type -t __git_ps1 >/dev/null 2>&1;
+		if [ $? -eq 0 ]; then
+			_g="\$(__git_ps1 \"${PP_GITINFO_FORMAT:- (%s)}\")"
+		else
+			_g=""
+		fi
+		
+		local _e="${PP_PROMPT_END}"
 		local _o="\[${PPCLR_OPTIONALS}\]\$(pp_optional_info)\[${COLOR_DEFAULT}\]"
 		local _p="\[${PPCLR_USER_CURRENT}\]${PP_PROMPT_SIGN}\[${COLOR_DEFAULT}\]"
-		local _e="${PP_PROMPT_END}"
 
 		# Set Titlebar for Terminal emulators
 		if [[ "$USE_TERM_TITLE" == 1 ]]; then
 			local _t="\[\$(pp_termtext)\]"
 		fi
 		
-		PS1="${_s}${_t}${_u}${_a}${_h}${_c}${_w}${_e}${_o}${_p} "
+		PS1="${_s}${_t}${_u}${_a}${_h}${_c}${_w}${_g}${_e}${_o}${_p} "
 	}
 
 	set_bash_powerprompt

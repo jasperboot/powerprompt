@@ -295,15 +295,14 @@ if [[ "$-" == *i* ]]; then if [[ "${BASH##*/}" == "bash" ]]; then
 				echo -n $conclr
 			}
 
-			local SESS_SRC=$(who | grep "${tty#/dev/}")
-			SESS_SRC=${SESS_SRC##* }
+			local SESS_SRC=$(who -m | tr -s \  | cut -d \  -f 6)
 			SESS_SRC=${SESS_SRC/(/}
 			SESS_SRC=${SESS_SRC/)/}
 			if [[ ${SSH_CLIENT} ]] || [[ ${SSH2_CLIENT} ]]; then
 				# We have a SSH-session
 				CONNECTION_CLR=${PPCLR_CONN_SECURE}
 			elif [[ -n ${SESS_SRC} ]]; then
-				if [ "${SESS_SRC}" == "(:0.0)" ]; then
+				if [ "${SESS_SRC}" == ":0.0" ]; then
 					# We're connected from X
 					CONNECTION_CLR=${PPCLR_CONN_LOCAL}
 				else

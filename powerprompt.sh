@@ -294,9 +294,7 @@ if [[ "$-" == *i* ]]; then if [[ "${BASH##*/}" == "bash" ]]; then
 				echo -n "${conclr}"
 			}
 
-			local SESS_SRC=$(LC_TIME=C who -m | tr -s \  | cut -d \  -f 6)
-			SESS_SRC=${SESS_SRC#(}
-			SESS_SRC=${SESS_SRC%)}
+			local SESS_SRC=$(expr match "$(who -m)" '.*(\(.*\))')
 			if [[ ${SSH_CLIENT} ]] || [[ ${SSH2_CLIENT} ]]; then
 				# We have an SSH-session
 				CONNECTION_CLR=${PPCLR_CONN_SECURE}

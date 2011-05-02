@@ -1,16 +1,15 @@
 #!/bin/bash
 # Filename:      powerprompt.sh
 # Maintainer:    Jasper Boot <jasper.boot+powerprompt@gmail.com>
-# Last Modified: 2011-05-02 by Jasper Boot
 
 # Description: A powerfull prompt with the 'less is more principle' for colors
 #              If nothing special is happening, prompt will be all uncolored
 #
 # Current Format: user@host:pwd [git section] [dynamic section]> 
 # USER:
-#   Red       == Root(UID 0) Login shell (i.e. sudo bash)
 #   Light Red == Root(UID 0) Login shell (i.e. su -l or direct login)
-#   Yellow    == Root(UID 0) privileges in non-login shell (i.e. su)
+#   Red       == Root(UID 0) shell (i.e. sudo bash)
+#   Yellow    == Root(UID 0) privileges in non-root shell (i.e. su)
 #   Brown     == SU to user other than root(UID 0)
 #   Default   == Normal user
 # @:
@@ -71,34 +70,34 @@ if [[ "$-" == *i* ]]; then if [[ "${BASH##*/}" == "bash" ]]; then
 	_pwd_slim()
 	{
 		local _w=$1
-		test -n "$_w" || _w=$PWD
+		test -n "${_w}" || _w=${PWD}
 		local pwdmaxlen=$2
-		test -n $pwdmaxlen || pwdmaxlen=30
+		test -n ${pwdmaxlen} || pwdmaxlen=30
 		if [[ "${_w:1:1}" != "~" ]]; then
-			if [ ${#_w} -gt $pwdmaxlen ]; then
+			if [ ${#_w} -gt ${pwdmaxlen} ]; then
 				_w="${_w:0:2}/${_w#/*/}";
 			fi
-			if [ ${#_w} -gt $pwdmaxlen ]; then
+			if [ ${#_w} -gt ${pwdmaxlen} ]; then
 				_w="${_w:0:4}/${_w#/?/*/}";
 			fi
 		fi
-		echo -n $_w
+		echo -n "${_w}"
 	}
 	
 	# Truncs the start of string to make it fit into a set length
 	_pwd_trunc()
 	{
 		local _w=$1
-		test -n "$_w" || _w=$PWD
+		test -n "${_w}" || _w=${PWD}
 		local pwdmaxlen=$2
-		test -n $pwdmaxlen || pwdmaxlen=30
-		if [ ${#_w} -gt $pwdmaxlen ]; then
-			local pwdoffset=$(( ${#_w} - $pwdmaxlen + ${#PP_PWD_ELLIPSIS} ))
+		test -n ${pwdmaxlen} || pwdmaxlen=30
+		if [ ${#_w} -gt ${pwdmaxlen} ]; then
+			local pwdoffset=$(( ${#_w} - ${pwdmaxlen} + ${#PP_PWD_ELLIPSIS} ))
 			_w="${_w:$pwdoffset:$pwdmaxlen}"
 			_w="${_w#*/}"
 			_w="${PP_PWD_ELLIPSIS}${_w}"
 		fi
-		echo -n $_w
+		echo -n "${_w}"
 	}
 		
 ###
@@ -110,36 +109,36 @@ if [[ "$-" == *i* ]]; then if [[ "${BASH##*/}" == "bash" ]]; then
 	{
 		( 
 			IFS=/
-			set $PWD
+			set ${PWD}
 			if test $# -le 3 ; then
-				echo "$PWD"
+				echo "${PWD}"
 			else
 				eval echo \"${PP_PWD_ELLIPSIS}\${$(($#-1))}/\${$#}\"
 			fi 
 		) ;
 	}
 	
-	# Fish's default pwd
+	# Fish's default pwd (all but last directory down to 1 char per dir; with home substitution)
 	fishpwd()
 	{
 		local _w="${PWD/$HOME/~}"
-		echo -n $_w | sed -e 's-/\([^/]\)\([^/]*\)-/\1-g'
-		echo -n $_w | sed -n -e 's-.*/.\([^/]*\)-\1-p'
+		echo -n "${_w}" | sed -e 's-/\([^/]\)\([^/]*\)-/\1-g'
+		echo -n "${_w}" | sed -n -e 's-.*/.\([^/]*\)-\1-p'
 		echo
 	}
 	
-	# Powerprompt's default pwd
+	# Powerprompt's default pwd (intelligent slimming; with home substitution)
 	powerpwd() 
 	{
-		local pp_cols="$COLUMNS"
-		if [[ "$pp_cols" = "" ]]; then pp_cols=80; fi
-		local pwdmaxlen=$(($pp_cols/3))
+		local pp_cols="${COLUMNS}"
+		if [[ "${pp_cols}" = "" ]]; then pp_cols=80; fi
+		local pwdmaxlen=$((${pp_cols}/3))
 		local _w="${PWD/$HOME/~}"
 		# If needed strip first (evt. second) dir down to one char
-		_w=$(_pwd_slim "${_w}" $pwdmaxlen)
+		_w=$(_pwd_slim "${_w}" ${pwdmaxlen})
 		# If still needed, trunc pwd
-		_w=$(_pwd_trunc "${_w}" $pwdmaxlen)
-		echo ${_w}
+		_w=$(_pwd_trunc "${_w}" ${pwdmaxlen})
+		echo "${_w}"
 	}
 
 ###
@@ -156,7 +155,7 @@ if [[ "$-" == *i* ]]; then if [[ "${BASH##*/}" == "bash" ]]; then
 			load=${UPTIME##*:[$IFS]}
 			load=${load%%,*}
 		fi
-		echo -n ${load/./}
+		echo -n "${load/./}"
 	}
 
 	ppclr_load_current()
@@ -174,19 +173,19 @@ if [[ "$-" == *i* ]]; then if [[ "${BASH##*/}" == "bash" ]]; then
 		else
 			LOAD_COLOR=${PPCLR_LOAD_LOW}
 		fi
-		echo -en $LOAD_COLOR
+		echo -en "${LOAD_COLOR}"
 	}
 
 	ppclr_wdperm_current()
 	{
-    	# Color depends on Working directory permissions (R/W or RO)
+    		# Color depends on Working directory permissions (R/W or RO)
 		local PERM_COLOR
 		if [ -w "${PWD}" ]; then
 			PERM_COLOR=${PPCLR_WDPERM_RW}
 		else
 			PERM_COLOR=${PPCLR_WDPERM_RO}
 		fi
-		echo -en $PERM_COLOR
+		echo -en "${PERM_COLOR}"
 	}
 
 	pp_optional_info()
@@ -196,13 +195,13 @@ if [[ "$-" == *i* ]]; then if [[ "${BASH##*/}" == "bash" ]]; then
 		local jobs_running=$(jobs -r | wc -l )
 		local jobs_stopped=$(jobs -s | wc -l )
 		
-		if [ $screens -gt 0 ]; then
+		if [ ${screens} -gt 0 ]; then
 			optionals="${optionals} [scr:${screens}]"
 		fi
-		if [[ ( $jobs_running -gt 0 ) || ( $jobs_stopped -gt 0 ) ]]; then
+		if [[ ( ${jobs_running} -gt 0 ) || ( ${jobs_stopped} -gt 0 ) ]]; then
 			optionals="${optionals} [jobs:${jobs_running}/${jobs_stopped}]"
 		fi
-		echo -n "$optionals"
+		echo -n "${optionals}"
 	}
 
 	# Set Return xterm prompt string with short path (last 18 characters)
@@ -245,7 +244,7 @@ if [[ "$-" == *i* ]]; then if [[ "${BASH##*/}" == "bash" ]]; then
 			# Color depends on user-login type
 			local USER_CLR
 			local me=$(whoami)
-			if test "$UID" = 0 ; then
+			if test "${UID}" = 0 ; then
 				if [ "${USER}" == "${me}" ]; then
 					if [[ ${SUDO_USER} ]]; then
 						USER_CLR=${PPCLR_USER_ROOT_SUDO}
@@ -264,7 +263,7 @@ if [[ "$-" == *i* ]]; then if [[ "${BASH##*/}" == "bash" ]]; then
 					USER_CLR=${PPCLR_USER_NORMAL_SU}
 				fi
 			fi
-			echo -n $USER_CLR
+			echo -n "${USER_CLR}"
 		}
 		
 		ppclr_conn_current()
@@ -292,14 +291,14 @@ if [[ "$-" == *i* ]]; then if [[ "${BASH##*/}" == "bash" ]]; then
 					fi
 					parentPID=$(ps -f -p ${parentPID} | awk '{print $3}' | grep -v PPID)
 				done
-				echo -n $conclr
+				echo -n "${conclr}"
 			}
 
 			local SESS_SRC=$(LC_TIME=C who -m | tr -s \  | cut -d \  -f 6)
 			SESS_SRC=${SESS_SRC#(}
 			SESS_SRC=${SESS_SRC%)}
 			if [[ ${SSH_CLIENT} ]] || [[ ${SSH2_CLIENT} ]]; then
-				# We have a SSH-session
+				# We have an SSH-session
 				CONNECTION_CLR=${PPCLR_CONN_SECURE}
 			elif [[ -n ${SESS_SRC} ]]; then
 				if [ "${SESS_SRC}" == ":0.0" ]; then
@@ -310,33 +309,35 @@ if [[ "$-" == *i* ]]; then if [[ "${BASH##*/}" == "bash" ]]; then
 					CONNECTION_CLR=$(rpid_connection_clr ${PPCLR_CONN_INSECURE} ${PPCLR_CONN_SECURE} ${PPCLR_CONN_UNKNOWN})
 				fi
 			elif [[ "${SESS_SRC}" == "" ]]; then
-				# Seems like a local terminal, but we may have also been su -l'ed into a normal user,
+				# Seems like a local (possibly X) terminal, but we may have also been su -l'ed into a normal user,
 				# while being on a remote connection! Lets check it...
 				CONNECTION_CLR=$(rpid_connection_clr ${PPCLR_CONN_INSECURE} ${PPCLR_CONN_SECURE} ${PPCLR_CONN_LOCAL})
 			else
 				CONNECTION_CLR=${PPCLR_CONN_UNKNOWN}
 			fi
 			
-			echo -n $CONNECTION_CLR
+			unset rpid_connection_clr
+
+			echo -n "${CONNECTION_CLR}"
 		}
 		
 		pp_prompt_sign()
 		{
 			# Set prompt sign depending on the user
 			local prompt_sign
-			case $PP_PROMPT_CHAR in
+			case ${PP_PROMPT_CHAR} in
 				bash)
 					prompt_sign='\$'
 					;;
 				*)
-					if test "$UID" = 0 ; then
+					if test "${UID}" = 0 ; then
 						prompt_sign=" #"
 					else
 						prompt_sign=">"
 					fi
 					;;
 			esac
-			echo -n "$prompt_sign"
+			echo -n "${prompt_sign}"
 		}
 		
 		# Setup colordata:
@@ -399,67 +400,56 @@ if [[ "$-" == *i* ]]; then if [[ "${BASH##*/}" == "bash" ]]; then
 		test -s ~/.powerprompt.conf && . ~/.powerprompt.conf
 		
 		# Initialize other vars
-		if [ ${#tty} -eq 0 ]; then tty=$(tty); fi
+		[ ${#tty} -eq 0 ] && tty=$(tty)
 		
-		# Run the one-time functions
-		local PPCLR_USER_CURRENT=$(ppclr_user_current)
-		local PPCLR_CONN_CURRENT=$(ppclr_conn_current)
-		local PP_PROMPT_SIGN=$(pp_prompt_sign)
 		# Check for title support of terminal
-		test \( "$TERM" = "xterm" -o "${TERM#screen}" != "$TERM" \) -a -z "$EMACS" -a -z "$MC_SID" && USE_TERM_TITLE=1
+		test \( "${TERM}" = "xterm" -o "${TERM#screen}" != "${TERM}" \) -a -z "${EMACS}" -a -z "${MC_SID}" && USE_TERM_TITLE=1
 
-		local _s="${PP_PROMPT_START}"
-		local _u="\[${PPCLR_USER_CURRENT}\]\u\[${COLOR_DEFAULT}\]"
-		local _a="\[${PPCLR_CONN_CURRENT}\]@\[${COLOR_DEFAULT}\]"
-		local _h="\[\$(ppclr_load_current)\]\h\[${COLOR_DEFAULT}\]"
-		local _c="${PP_PROMPT_SPLITTER}"
-
-		local _w
-		case $PP_PROMPT_PATH in
+		# Select the right pwd
+		local _pwd
+		case ${PP_PROMPT_PATH} in
 			bash)
-				# With Bash's default prompt path
-				_w="\[\$(ppclr_wdperm_current)\]\w\[${COLOR_DEFAULT}\]"
-				;;
+				_pwd="\w"
+				;; # With Bash's default prompt path
 			toplevel)
-				# With only toplevel directory
-				_w="\[\$(ppclr_wdperm_current)\]\W\[${COLOR_DEFAULT}\]"
-				;;
+				_pwd="\W"
+				;; # With only toplevel directory
 			fish)
-				# With Fish's default prompt path
-				_w="\[\$(ppclr_wdperm_current)\]\$(fishpwd)\[${COLOR_DEFAULT}\]"
-				;;
+				_pwd="\$(fishpwd)"
+				;; # With Fish's default prompt path
 			short)
-				# With short path on prompt (max 2 dirs)
-				_w="\[\$(ppclr_wdperm_current)\]\$(spwd)\[${COLOR_DEFAULT}\]"
-				;;
+				_pwd="\$(spwd)"
+				;; # With short path on prompt (max 2 dirs)
 			physical)
-				# With physical path even if reached over sym link
-				_w="\[\$(ppclr_wdperm_current)\]\$(pwd -P)\[${COLOR_DEFAULT}\]"
-				;;
+				_pwd="\$(pwd -P)"
+				;; # With physical path even if reached over sym link
 			*)
-				# With Powerprompt's default prompt path
-				_w="\[\$(ppclr_wdperm_current)\]\$(powerpwd)\[${COLOR_DEFAULT}\]"
-				;;
+				_pwd="\$(powerpwd)"
+				;; # With Powerprompt's default prompt path
 		esac
 			
-		local _g
-		type -t __git_ps1 >/dev/null 2>&1;
-		if [ $? -eq 0 ]; then
-			_g="\$(__git_ps1 \"${PP_GITINFO_FORMAT:- (%s)}\")"
-		else
-			_g=""
-		fi
-		
+		# Run one-off functions that are used multiple times
+		local PPCLR_USER_CURRENT=$(ppclr_user_current)                            # One-off execution (user colour)
+		# Set all the parts that make up the prompt
+		local _s="${PP_PROMPT_START}"
+		local _u="\[${PPCLR_USER_CURRENT}\]\u\[${COLOR_DEFAULT}\]"
+		local _a="\[$(ppclr_conn_current)\]@\[${COLOR_DEFAULT}\]"                 # One-off execution (connection colour)
+		local _h="\[\$(ppclr_load_current)\]\h\[${COLOR_DEFAULT}\]"               # Executed every prompt (load colour)
+		local _c="${PP_PROMPT_SPLITTER}"
+		local _w="\[\$(ppclr_wdperm_current)\]${_pwd}\[${COLOR_DEFAULT}\]"        # Executed every prompt (pwd permission colour)
+		local _g="" && type -t __git_ps1 >/dev/null 2>&1 && _g="\$(__git_ps1 \"${PP_GITINFO_FORMAT:- (%s)}\")" # Executed every prompt (git details)
 		local _e="${PP_PROMPT_END}"
-		local _o="\[${PPCLR_OPTIONALS}\]\$(pp_optional_info)\[${COLOR_DEFAULT}\]"
-		local _p="\[${PPCLR_USER_CURRENT}\]${PP_PROMPT_SIGN}\[${COLOR_DEFAULT}\]"
-
-		# Set Titlebar for Terminal emulators
-		if [[ "$USE_TERM_TITLE" == 1 ]]; then
-			local _t="\[\$(pp_termtext)\]"
-		fi
+		local _o="\[${PPCLR_OPTIONALS}\]\$(pp_optional_info)\[${COLOR_DEFAULT}\]" # Executed every prompt (detached screens and jobs)
+		local _p="\[${PPCLR_USER_CURRENT}\]$(pp_prompt_sign)\[${COLOR_DEFAULT}\]" # One-off execution (prompt sign)
+		# Set Titlebar part for Terminal emulators
+		local _t="" && [[ "${USE_TERM_TITLE}" == "1" ]] &&  _t="\[\$(pp_termtext)\]"  # Executed every prompt (terminal title setting escape codes)
 		
 		PS1="${_s}${_t}${_u}${_a}${_h}${_c}${_w}${_g}${_e}${_o}${_p} "
+
+		# Clean up local functions
+		unset pp_prompt_sign
+		unset ppclr_conn_current
+		unset ppclr_user_current
 	}
 
 	set_bash_powerprompt

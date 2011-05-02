@@ -374,7 +374,7 @@ if [[ "$-" == *i* ]]; then if [[ "${BASH##*/}" == "bash" ]]; then
 		local PP_PROMPT_SPLITTER=' '	# Can be set to ':' as some people prefer
 		local PP_PROMPT_CHAR='default'	# 'default' = ">" and " #", 'bash' = bash's defaults, currently "$" and "#"
 		local PP_PROMPT_PATH='default'	# 'default', 'bash', 'toplevel', 'fish', 'short', 'physical'
-		local PP_GITINFO_FORMAT=" (\[${COLOR_DEFAULT}\]%s\[${COLOR_DEFAULT}\])"
+		local PP_GITINFO_FORMAT=" (%s)" # Can be colorized if prefered
 		#  Colors:
 		#  - User session type (can be local)
 		local PPCLR_USER_ROOT_SUDO="${COLOR_RED}"

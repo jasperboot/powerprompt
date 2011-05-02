@@ -444,7 +444,7 @@ if [[ "$-" == *i* ]]; then if [[ "${BASH##*/}" == "bash" ]]; then
 		# Set Titlebar part for Terminal emulators
 		local _t="" && [[ "${USE_TERM_TITLE}" == "1" ]] &&  _t="\[\$(pp_termtext)\]"  # Executed every prompt (terminal title setting escape codes)
 		
-		PS1="${_s}${_t}${_u}${_a}${_h}${_c}${_w}${_g}${_e}${_o}${_p} "
+		PS1="${_s}${_t}${_u}${_a}${_h}${_c}${_w}${_e}${_g}${_o}${_p} "
 
 		# Clean up local functions
 		unset pp_prompt_sign

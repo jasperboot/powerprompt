@@ -331,7 +331,11 @@ if [[ "$-" == *i* ]]; then if [[ "${BASH##*/}" == "bash" ]]; then
 					;;
 				*)
 					if test "${UID}" = 0 ; then
-						prompt_sign=" #"
+						if test "${PP_PROMPT_END}" == ''; then
+							prompt_sign=" #"
+						else
+							prompt_sign="#"
+						fi
 					else
 						prompt_sign=">"
 					fi

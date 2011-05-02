@@ -1,7 +1,7 @@
 #!/bin/bash
 # Filename:      powerprompt.sh
 # Maintainer:    Jasper Boot <jasper.boot+powerprompt@gmail.com>
-# Last Modified: 2011-04-28 by Jasper Boot
+# Last Modified: 2011-05-02 by Jasper Boot
 
 # Description: A powerfull prompt with the 'less is more principle' for colors
 #              If nothing special is happening, prompt will be all uncolored
@@ -295,9 +295,9 @@ if [[ "$-" == *i* ]]; then if [[ "${BASH##*/}" == "bash" ]]; then
 				echo -n $conclr
 			}
 
-			local SESS_SRC=$(who -m | tr -s \  | cut -d \  -f 6)
-			SESS_SRC=${SESS_SRC/(/}
-			SESS_SRC=${SESS_SRC/)/}
+			local SESS_SRC=$(LC_TIME=C who -m | tr -s \  | cut -d \  -f 6)
+			SESS_SRC=${SESS_SRC#(}
+			SESS_SRC=${SESS_SRC%)}
 			if [[ ${SSH_CLIENT} ]] || [[ ${SSH2_CLIENT} ]]; then
 				# We have a SSH-session
 				CONNECTION_CLR=${PPCLR_CONN_SECURE}

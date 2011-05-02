@@ -439,8 +439,8 @@ if [[ "$-" == *i* ]]; then if [[ "${BASH##*/}" == "bash" ]]; then
 		local _h="\[\$(ppclr_load_current)\]\h\[${COLOR_DEFAULT}\]"               # Executed every prompt (load colour)
 		local _c="${PP_PROMPT_SPLITTER}"
 		local _w="\[\$(ppclr_wdperm_current)\]${_pwd}\[${COLOR_DEFAULT}\]"        # Executed every prompt (pwd permission colour)
-		local _g="" && type -t __git_ps1 >/dev/null 2>&1 && _g="\$(__git_ps1 \"${PP_GITINFO_FORMAT:- (%s)}\")" # Executed every prompt (git details)
 		local _e="${PP_PROMPT_END}"
+		local _g="" && type -t __git_ps1 >/dev/null 2>&1 && _g="\$(__git_ps1 \"${PP_GITINFO_FORMAT:- (%s)}\")" # Executed every prompt (git details)
 		local _o="\[${PPCLR_OPTIONALS}\]\$(pp_optional_info)\[${COLOR_DEFAULT}\]" # Executed every prompt (detached screens and jobs)
 		local _p="\[${PPCLR_USER_CURRENT}\]$(pp_prompt_sign)\[${COLOR_DEFAULT}\]" # One-off execution (prompt sign)
 		# Set Titlebar part for Terminal emulators

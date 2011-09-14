@@ -130,8 +130,7 @@ if [[ "$-" == *i* ]]; then if [[ "${BASH##*/}" == "bash" ]]; then
 	# Powerprompt's default pwd (intelligent slimming; with home substitution)
 	powerpwd() 
 	{
-		local pp_cols="${COLUMNS}"
-		if [[ "${pp_cols}" = "" ]]; then pp_cols=80; fi
+		local pp_cols="${COLUMNS:-80}"
 		local pwdmaxlen=$((${pp_cols}/3))
 		local _w="${PWD/$HOME/~}"
 		# If needed strip first (evt. second) dir down to one char

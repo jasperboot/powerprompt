@@ -144,7 +144,7 @@ if [[ "$-" == *i* ]]; then if [[ "${BASH##*/}" == "bash" ]]; then
 # Function section with functions that get executed each time the prompt gets show
 ###
 
-	get_current_load()
+	pp_corrected_load()
 	{
 		local load
 		if [ -r /proc/loadavg ] ; then
@@ -156,16 +156,17 @@ if [[ "$-" == *i* ]]; then if [[ "${BASH##*/}" == "bash" ]]; then
 			load=${load%%,*}
 		fi
 		load=${load/./}
-		load=${load##+(0)};
+		load=${load#0}
+		load=${load#0}
 		load=$((${load:-0}/${core_count:-1}))
-		echo -n "${load}"
+		echo "${load}"
 	}
 
 	ppclr_load_current()
 	{
 		# Color depends on the current system load
 		local LOAD_COLOR
-		local load=$(get_current_load)
+		local load=$(pp_corrected_load)
 		if [ ${load:-0} -ge 500 ]; then
 			LOAD_COLOR=${PPCLR_LOAD_CRITICAL}
 		elif [ ${load:-0} -ge 100 ]; then

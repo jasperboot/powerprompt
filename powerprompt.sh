@@ -301,7 +301,7 @@ if [[ "$-" == *i* ]]; then if [[ "${BASH##*/}" == "bash" ]]; then
 				# We have an SSH-session
 				CONNECTION_CLR=${PPCLR_CONN_SECURE}
 			elif [[ -n ${SESS_SRC} ]]; then
-				if [ "${SESS_SRC}" == ":0.0" ]; then
+				if [ "${SESS_SRC:0:1}" == ":" ]; then
 					# We're connected from X
 					CONNECTION_CLR=${PPCLR_CONN_LOCAL}
 				else

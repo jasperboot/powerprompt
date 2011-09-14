@@ -18,10 +18,10 @@
 #   Green     == Secure remote connection (i.e. SSH)
 #   Default   == Local session
 # HOST:
-#   Black/Red == LoadAvg last minute >= 3
-#   Red	      == LoadAvg last minute >= 2
-#   Yellow    == LoadAvg last minute >= 1
-#   Default   == LoadAvg last minute >= 0
+#   Black/Red == LoadAvg/#cores last 5 minutes >= 5.0
+#   Red	      == LoadAvg/#cores last 5 minutes >= 1.0
+#   Yellow    == LoadAvg/#cores last 5 minutes >= 0.7
+#   Default   == LoadAvg/#cores last 5 minutes <  0.7
 # GIT SECTION (only shows when git-completion is installed and when pwd is in a git repo)
 #    (branch)    === Shows current git branch
 # DYNAMIC SECTION
@@ -149,13 +149,17 @@ if [[ "$-" == *i* ]]; then if [[ "${BASH##*/}" == "bash" ]]; then
 	{
 		local load
 		if [ -r /proc/loadavg ] ; then
-			load=$(cat /proc/loadavg | cut -d \  -f 1)
+			load=$(cat /proc/loadavg | cut -d \  -f 2)
 		else
 			local UPTIME=$(uptime)
 			load=${UPTIME##*:[$IFS]}
+			load=${load#*, }
 			load=${load%%,*}
 		fi
-		echo -n "${load/./}"
+		load=${load/./}
+		load=${load##+(0)};
+		load=$((${load:-0}/${core_count:-1}))
+		echo -n "${load}"
 	}
 
 	ppclr_load_current()
@@ -163,15 +167,14 @@ if [[ "$-" == *i* ]]; then if [[ "${BASH##*/}" == "bash" ]]; then
 		# Color depends on the current system load
 		local LOAD_COLOR
 		local load=$(get_current_load)
-		load=${load%.*}
-		if [ ${load:-0} -ge 300 ]; then
-			LOAD_COLOR=${PPCLR_LOAD_SKYHIGH}
-		elif [ ${load:-0} -ge 200 ]; then
-			LOAD_COLOR=${PPCLR_LOAD_HIGH}
+		if [ ${load:-0} -ge 500 ]; then
+			LOAD_COLOR=${PPCLR_LOAD_CRITICAL}
 		elif [ ${load:-0} -ge 100 ]; then
+			LOAD_COLOR=${PPCLR_LOAD_HIGH}
+		elif [ ${load:-0} -ge 70 ]; then
 			LOAD_COLOR=${PPCLR_LOAD_MEDIUM}
 		else
-			LOAD_COLOR=${PPCLR_LOAD_LOW}
+			LOAD_COLOR=${PPCLR_LOAD_NORMAL}
 		fi
 		echo -en "${LOAD_COLOR}"
 	}
@@ -386,10 +389,10 @@ if [[ "$-" == *i* ]]; then if [[ "${BASH##*/}" == "bash" ]]; then
 		local PPCLR_CONN_SECURE="${COLOR_GREEN}"
 		local PPCLR_CONN_LOCAL="${COLOR_DEFAULT}"
 		# - System load (can't be local)
-		PPCLR_LOAD_SKYHIGH="${COLOR_RED}${COLOR_INVERSE}"
+		PPCLR_LOAD_CRITICAL="${COLOR_RED}${COLOR_INVERSE}"
 		PPCLR_LOAD_HIGH="${COLOR_RED}"
 		PPCLR_LOAD_MEDIUM="${COLOR_YELLOW}"
-		PPCLR_LOAD_LOW="${COLOR_DEFAULT}"
+		PPCLR_LOAD_NORMAL="${COLOR_DEFAULT}"
 		# - Filepermissions in wd (can't be local)
 		PPCLR_WDPERM_RW="${COLOR_DEFAULT}"
 		PPCLR_WDPERM_RO="${COLOR_GRAY}"
@@ -403,7 +406,8 @@ if [[ "$-" == *i* ]]; then if [[ "${BASH##*/}" == "bash" ]]; then
 		
 		# Initialize other vars
 		[ ${#tty} -eq 0 ] && tty=$(tty)
-		
+		test -r /proc/cpuinfo && core_count=$(grep -c "model name" /proc/cpuinfo)
+
 		# Check for title support of terminal
 		test \( "${TERM}" = "xterm" -o "${TERM#screen}" != "${TERM}" \) -a -z "${EMACS}" -a -z "${MC_SID}" && USE_TERM_TITLE=1
 

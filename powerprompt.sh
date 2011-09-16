@@ -150,7 +150,7 @@ if [[ "$-" == *i* ]]; then if [[ "${BASH##*/}" == "bash" ]]; then
 		if [ -r /proc/loadavg ] ; then
 			load=$(cat /proc/loadavg | cut -d \  -f 2)
 		else
-			local UPTIME=$(uptime)
+			local UPTIME=$(uptime 2> /dev/null)
 			load=${UPTIME##*:[$IFS]}
 			load=${load#*, }
 			load=${load%%,*}

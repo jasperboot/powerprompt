@@ -158,7 +158,7 @@ if [[ "$-" == *i* ]]; then if [[ "${BASH##*/}" == "bash" ]]; then
 		load=${load/./}
 		load=${load#0}
 		load=${load#0}
-		load=$((${load:-0}/${core_count:-1}))
+		load=$((${load:-0}/${NUMBER_OF_PROCESSORS:-1}))
 		echo "${load}"
 	}
 
@@ -212,6 +212,7 @@ if [[ "$-" == *i* ]]; then if [[ "${BASH##*/}" == "bash" ]]; then
 	{
 		local pwdmaxlen=30
 		local _w="${PWD/$HOME/~}"
+		local user="${USER:-${USERNAME}}"
 		local host="${HOSTNAME%%.*}"
 
 		# If needed strip first (evt. second) dir down to one char
@@ -222,11 +223,11 @@ if [[ "$-" == *i* ]]; then if [[ "${BASH##*/}" == "bash" ]]; then
 		# Return correct escape sequences for terminal
 		case "$TERM" in
 		screen*)
-			_screenterm_print "${USER}@${host}:${_w}"
+			_screenterm_print "${user}@${host}:${_w}"
 			;;
 		*)
-			_term_print "${USER}@${host}" ICON
-			_term_print "${USER}@${host}:${_w}" TITLE
+			_term_print "${user}@${host}" ICON
+			_term_print "${user}@${host}:${_w}" TITLE
 			;;
 		esac
 	}
@@ -247,8 +248,9 @@ if [[ "$-" == *i* ]]; then if [[ "${BASH##*/}" == "bash" ]]; then
 			# Color depends on user-login type
 			local USER_CLR
 			local me=$(whoami)
+			local user="${USER:-${USERNAME}}"
 			if test "${UID}" = 0 ; then
-				if [ "${USER}" == "${me}" ]; then
+				if [ "${user}" == "${me}" ]; then
 					if [[ ${SUDO_USER} ]]; then
 						USER_CLR=${PPCLR_USER_ROOT_SUDO}
 					else
@@ -258,9 +260,10 @@ if [[ "$-" == *i* ]]; then if [[ "${BASH##*/}" == "bash" ]]; then
 					USER_CLR=${PPCLR_USER_ROOT_SU}
 				fi
 			else
-				local realme=$(w | grep ${tty#/dev/})
+				local realme=$(w 2> /dev/null | grep ${tty#/dev/} 2> /dev/null)
 				realme=${realme%% *}
-				if [ "${USER}" == "${realme}" ]; then
+				realme=${realme:-${user}}
+				if [ "${user}" == "${realme}" ]; then
 					USER_CLR=${PPCLR_USER_NORMAL}
 				else
 					USER_CLR=${PPCLR_USER_NORMAL_SU}
@@ -282,7 +285,7 @@ if [[ "$-" == *i* ]]; then if [[ "${BASH##*/}" == "bash" ]]; then
 				
 				parentPID=${PPID};
 				while [ "${parentPID}" -gt 1 ]; do
-					parent_process=$(cat /proc/${parentPID}/cmdline)
+					parent_process=$(cat /proc/${parentPID}/cmdline 2> /dev/null)
 					if [[ "${parent_process}" == in.*d* ]]; then
 						conclr=$1
 						break
@@ -297,7 +300,7 @@ if [[ "$-" == *i* ]]; then if [[ "${BASH##*/}" == "bash" ]]; then
 				echo -n "${conclr}"
 			}
 
-			local SESS_SRC=$(expr match "$(who -m)" '.*(\(.*\))')
+			local SESS_SRC=$(expr match "$(who -m 2> /dev/null)" '.*(\(.*\))')
 			if [[ ${SSH_CLIENT} ]] || [[ ${SSH2_CLIENT} ]]; then
 				# We have an SSH-session
 				CONNECTION_CLR=${PPCLR_CONN_SECURE}
@@ -405,8 +408,12 @@ if [[ "$-" == *i* ]]; then if [[ "${BASH##*/}" == "bash" ]]; then
 		test -s ~/.powerprompt.conf && . ~/.powerprompt.conf
 		
 		# Initialize other vars
-		[ ${#tty} -eq 0 ] && tty=$(tty)
-		test -r /proc/cpuinfo && core_count=$(grep -c "model name" /proc/cpuinfo)
+		if [ "${TERM}" != "cygwin" ]; then
+			[ ${#tty} -eq 0 ] && tty=$(tty 2> /dev/null)
+		else
+			tty="/dev/tty"
+		fi
+		[ ${#NUMBER_OF_PROCESSORS} -eq 0 ] && test -r /proc/cpuinfo && NUMBER_OF_PROCESSORS=$(grep -c "model name" /proc/cpuinfo)
 
 		# Check for title support of terminal
 		test \( "${TERM}" = "xterm" -o "${TERM#screen}" != "${TERM}" \) -a -z "${EMACS}" -a -z "${MC_SID}" && USE_TERM_TITLE=1

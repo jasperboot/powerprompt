@@ -390,7 +390,7 @@ set_bash_powerprompt()
 
 	# Set default configuration
 	# Override these in /etc/powerprompt.conf and/or ~/.powerprompt.conf and/or ~/.config/powerprompt.conf
-	if [[ "${LANG#*.}" == "UTF" && "${TERM}" != "linux" ]];  then
+	if [[ "${LANG#*.}" == "UTF-8" && "${TERM}" != "linux" ]];  then
 		PP_PWD_ELLIPSIS='…'
 	else
 		PP_PWD_ELLIPSIS='..'

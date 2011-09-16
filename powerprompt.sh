@@ -387,7 +387,7 @@ if [[ "$-" == *i* ]]; then if [[ "${BASH##*/}" == "bash" ]]; then
 		local COLOR_INVERSE='\e[7m'
 
 		# Set default configuration
-		# Override these in /etc/powerprompt.conf and/or ~/.powerprompt.conf
+		# Override these in /etc/powerprompt.conf and/or ~/.powerprompt.conf and/or ~/.config/powerprompt.conf
 		PP_PWD_ELLIPSIS='..'
 		local PP_PROMPT_START=''	# Can be set to '[' as some people prefer
 		local PP_PROMPT_END=''		# Can be set to ']' as some people prefer
@@ -419,10 +419,15 @@ if [[ "$-" == *i* ]]; then if [[ "${BASH##*/}" == "bash" ]]; then
 		# - Optionals (can be local)
 		local PPCLR_OPTIONALS="${COLOR_YELLOW}"
 		
+		local conf
+		# Load any local configuration
+		conf=powerprompt.conf;            test -s $conf && . $conf
 		# Load systemwide configuration
-		test -s /etc/powerprompt.conf && . /etc/powerprompt.conf
+		conf=/etc/powerprompt.conf;       test -s $conf && . $conf
 		# Load user configuration
-		test -s ~/.powerprompt.conf && . ~/.powerprompt.conf
+		conf=~/.powerprompt.conf;         test -s $conf && . $conf
+		conf=~/.config/powerprompt.conf;  test -s $conf && . $conf
+		unset conf
 		
 		# Initialize other vars
 		if [ "${TERM}" != "cygwin" ]; then

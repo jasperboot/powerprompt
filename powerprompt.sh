@@ -247,25 +247,41 @@ if [[ "$-" == *i* ]]; then if [[ "${BASH##*/}" == "bash" ]]; then
 		{
 			# Color depends on user-login type
 			local USER_CLR
-			local me=$(whoami)
+			# Get the effective username
+			local me=$(id -un)
+			# Get the username according to env vars (this doesn't change to root when using su)
 			local user="${USER:-${USERNAME}}"
-			if test "${UID}" = 0 ; then
-				if [ "${user}" == "${me}" ]; then
+			# Get the username we originally logged into this box with
+			local realme=$(w 2> /dev/null | grep ${tty#/dev/} 2> /dev/null)
+			realme=${realme%% *}
+			realme=${realme:-$(id -unr)}
+			if test "${UID:-$(id -u)}" = 0 ; then
+				# We're running with effective root permissions
+				if [ "${user}" != "${me}" ]; then
+					# We've used su from a normal user account
+					USER_CLR=${PPCLR_USER_ROOT_SU}
+				else
+					# We've become root in another way
 					if [[ ${SUDO_USER} ]]; then
+						# We've used sudo bash or something similar; unwanted
 						USER_CLR=${PPCLR_USER_ROOT_SUDO}
 					else
-						USER_CLR=${PPCLR_USER_ROOT_LOGIN}
+						if [ "${user}" == "${realme}" ]; then
+							# We're logged in with root originally
+							USER_CLR=${PPCLR_USER_ROOT_LOCAL}
+						else
+							# We've changed to a root shell
+							USER_CLR=${PPCLR_USER_ROOT_LOGIN}
+						fi
 					fi
-				else
-					USER_CLR=${PPCLR_USER_ROOT_SU}
 				fi
 			else
-				local realme=$(w 2> /dev/null | grep ${tty#/dev/} 2> /dev/null)
-				realme=${realme%% *}
-				realme=${realme:-${user}}
+				# We're running with normal user permissions
 				if [ "${user}" == "${realme}" ]; then
+					# We're still the original user
 					USER_CLR=${PPCLR_USER_NORMAL}
 				else
+					# We changed to a different user
 					USER_CLR=${PPCLR_USER_NORMAL_SU}
 				fi
 			fi
@@ -381,7 +397,8 @@ if [[ "$-" == *i* ]]; then if [[ "${BASH##*/}" == "bash" ]]; then
 		local PP_GITINFO_FORMAT=" (%s)" # Can be colorized if prefered
 		#  Colors:
 		#  - User session type (can be local)
-		local PPCLR_USER_ROOT_SUDO="${COLOR_RED}"
+		local PPCLR_USER_ROOT_SUDO="${COLOR_RED}${COLOR_INVERSE}"
+		local PPCLR_USER_ROOT_LOCAL="${COLOR_RED}"
 		local PPCLR_USER_ROOT_LOGIN="${COLOR_LIGHTRED}"
 		local PPCLR_USER_ROOT_SU="${COLOR_YELLOW}"
 		local PPCLR_USER_NORMAL_SU="${COLOR_BROWN}"

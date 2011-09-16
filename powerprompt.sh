@@ -4,11 +4,13 @@
 
 # Description: A powerfull prompt with the 'less is more principle' for colors
 #              If nothing special is happening, prompt will be all uncolored
+#              (currently only for Bash)
 #
 # Current Format: user@host:pwd [git section] [dynamic section]> 
 # USER:
-#   Light Red == Root(UID 0) Login shell (i.e. su -l or direct login)
-#   Red       == Root(UID 0) shell (i.e. sudo bash)
+#   Black/Red == Root(UID 0) sudo shell (unwanted)
+#   Red       == Root(UID 0) direct login shell
+#   Light Red == Root(UID 0) indirect login shell (i.e. su -l or sudo su -)
 #   Yellow    == Root(UID 0) privileges in non-root shell (i.e. su)
 #   Brown     == SU to user other than root(UID 0)
 #   Default   == Normal user

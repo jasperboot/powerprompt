@@ -221,6 +221,10 @@ pp_termtext ()
 	_w=$(_pwd_slim "${_w}" $pwdmaxlen)
 	# If still needed, trunc pwd
 	_w=$(_pwd_trunc "${_w}" $pwdmaxlen)
+	# We should (for now) not rely on utf-8 working in term titles
+	# E.g. PuTTY shows garbage
+	# Too many dots doesn't look good either, so just remove ellipsis
+	_w="${_w/…/}"
 	
 	# Return correct escape sequences for terminal
 	case "$TERM" in

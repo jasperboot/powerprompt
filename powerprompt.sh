@@ -355,7 +355,7 @@ set_bash_powerprompt()
 			bash)
 				prompt_sign='\$'
 				;;
-			*)
+			default)
 				if test "${UID}" = 0 ; then
 					if test "${PP_PROMPT_END}" == ''; then
 						prompt_sign=" #"
@@ -365,6 +365,9 @@ set_bash_powerprompt()
 				else
 					prompt_sign=">"
 				fi
+				;;
+			*)
+				prompt_sign="${PP_PROMPT_CHAR}"
 				;;
 		esac
 		echo -n "${prompt_sign}"

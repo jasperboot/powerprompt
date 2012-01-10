@@ -315,10 +315,17 @@ set_bash_powerprompt()
 					conclr=$2
 					break
 				else
-					conclr=$3
+					conclr=$4
 				fi
 				parentPID=$(ps -f -p ${parentPID} | awk '{print $3}' | grep -v PPID)
 			done
+			if [ "${conclr}" == "" ]; then
+				if [ "${TERM}" == "cygwin" ]; then
+					conclr=$4
+				else
+					conclr=$3
+				fi
+			fi
 			echo -n "${conclr}"
 		}
 
@@ -337,7 +344,7 @@ set_bash_powerprompt()
 		elif [[ "${SESS_SRC}" == "" ]]; then
 			# Seems like a local (possibly X) terminal, but we may have also been su -l'ed into a normal user,
 			# while being on a remote connection! Lets check it...
-			CONNECTION_CLR=$(rpid_connection_clr ${PPCLR_CONN_INSECURE} ${PPCLR_CONN_SECURE} ${PPCLR_CONN_LOCAL})
+			CONNECTION_CLR=$(rpid_connection_clr ${PPCLR_CONN_INSECURE} ${PPCLR_CONN_SECURE} ${PPCLR_CONN_UNKNOWN} ${PPCLR_CONN_LOCAL})
 		else
 			CONNECTION_CLR=${PPCLR_CONN_UNKNOWN}
 		fi

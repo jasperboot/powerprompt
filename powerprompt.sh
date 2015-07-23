@@ -369,8 +369,8 @@ set_bash_powerprompt()
 				prompt_sign='\$'
 				;;
 			default)
-				if test "${UID}" = 0 ; then
-					if test "${PP_PROMPT_END}" == ''; then
+				if test "${UID}" = 0; then
+					if test "${PP_PROMPT_END}" = ''; then
 						prompt_sign=" #"
 					else
 						prompt_sign="#"

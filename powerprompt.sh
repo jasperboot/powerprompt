@@ -383,6 +383,13 @@ set_bash_powerprompt()
 				prompt_sign="${PP_PROMPT_CHAR}"
 				;;
 		esac
+		if test "${CONEMUISADMIN}" = "ADMIN"; then
+			if test "${PP_PROMPT_END}" != ' '; then
+				prompt_sign=" #"
+			else
+				prompt_sign="#"
+			fi
+		fi
 		echo -n "${prompt_sign}"
 	}
 	

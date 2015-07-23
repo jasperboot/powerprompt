@@ -285,7 +285,13 @@ set_bash_powerprompt()
 			# We're running with normal user permissions
 			if [ "${user}" == "${realme}" ]; then
 				# We're still the original user
-				USER_CLR=${PPCLR_USER_NORMAL}
+				if [ "${CONEMUISADMIN}" == "ADMIN" ]; then
+					# We're running under Windows in ConEmu in an elevated process
+					USER_CLR=${PPCLR_USER_ROOT_SU}
+				else
+					# We're just a plain old normal user
+					USER_CLR=${PPCLR_USER_NORMAL}
+				fi
 			else
 				# We changed to a different user
 				USER_CLR=${PPCLR_USER_NORMAL_SU}

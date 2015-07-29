@@ -285,7 +285,7 @@ set_bash_powerprompt()
 			# We're running with normal user permissions
 			if [ "${user}" == "${realme}" ]; then
 				# We're still the original user
-				if [ "${CONEMUISADMIN}" == "ADMIN" ]; then
+				if [ "${ConEmuIsAdmin}" == "ADMIN" ]; then
 					# We're running under Windows in ConEmu in an elevated process
 					USER_CLR=${PPCLR_USER_ROOT_SU}
 				else
@@ -383,7 +383,7 @@ set_bash_powerprompt()
 				prompt_sign="${PP_PROMPT_CHAR}"
 				;;
 		esac
-		if test "${CONEMUISADMIN}" = "ADMIN"; then
+		if test "${ConEmuIsAdmin}" = "ADMIN"; then
 			if test "${PP_PROMPT_END}" != ' '; then
 				prompt_sign=" #"
 			else

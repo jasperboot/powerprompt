@@ -65,6 +65,9 @@ _term_print()
 # Returns escape sequence for screen hardline status
 _screenterm_print()
 {
+	# Write-through to xterm / putty title (screen only)
+	echo -en "\e]0\\;$1\a"
+	# Set hardline status
 	echo -en "\e_$1\e\\";
 }
 
@@ -513,6 +516,12 @@ set_bash_powerprompt()
 	local _t="" && [[ "${USE_TERM_TITLE}" == "1" ]] &&  _t="\[\$(pp_termtext)\]"  # Executed every prompt (terminal title setting escape codes)
 	
 	PS1="${_s}${_t}${_u}${_a}${_h}${_c}${_w}${_e}${_g}${_o}${_p} "
+
+	# Set Titlebar for Terminal emulators when inside tmux session
+	if [ "$TERM" = "screen" ] && [ -n "$TMUX" ]; then
+		tmux set -g set-titles on 2>&1 > /dev/null
+		tmux set -g set-titles-string "#T [#I.#P]" 2>&1 > /dev/null
+	fi
 
 	# Clean up local functions
 	unset pp_prompt_sign

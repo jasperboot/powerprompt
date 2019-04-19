@@ -513,7 +513,7 @@ set_bash_powerprompt()
 	local _o="\[${PPCLR_OPTIONALS}\]\$(pp_optional_info)\[${COLOR_DEFAULT}\]" # Executed every prompt (detached screens and jobs)
 	local _p="\[${PPCLR_USER_CURRENT}\]$(pp_prompt_sign)\[${COLOR_DEFAULT}\]" # One-off execution (prompt sign)
 	# Set Titlebar part for Terminal emulators
-	local _t="" && [[ "${USE_TERM_TITLE}" == "1" ]] &&  _t="\[\$(pp_termtext)\]"  # Executed every prompt (terminal title setting escape codes)
+	local _t="" && [[ ( "${USE_TERM_TITLE}" == "1" && -z "${PP_SUPPRESS_TERM_TITLE}" ) ]] &&  _t="\[\$(pp_termtext)\]"  # Executed every prompt (terminal title setting escape codes)
 	
 	PS1="${_s}${_t}${_u}${_a}${_h}${_c}${_w}${_e}${_g}${_o}${_p} "
 	# Support for newer GIT for Windows packages

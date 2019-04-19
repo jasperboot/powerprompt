@@ -430,6 +430,7 @@ set_bash_powerprompt()
 	local PP_PROMPT_SPLITTER=' '	# Can be set to ':' as some people prefer
 	local PP_PROMPT_CHAR='default'	# 'default' = ">" and " #", 'bash' = bash's defaults, currently "$" and "#"
 	local PP_PROMPT_PATH='default'	# 'default', 'bash', 'toplevel', 'fish', 'short', 'physical'
+	local PP_PROMPT_AT='@'		# Can be set to ' @ ' which makes the prompt more readable
 	local PP_GITINFO_FORMAT=" (%s)" # Can be colorized if prefered
 	#  Colors:
 	#  - User session type (can be local)
@@ -504,7 +505,7 @@ set_bash_powerprompt()
 	# Set all the parts that make up the prompt
 	local _s="${PP_PROMPT_START}"
 	local _u="\[${PPCLR_USER_CURRENT}\]\u\[${COLOR_DEFAULT}\]"
-	local _a="\[$(ppclr_conn_current)\]@\[${COLOR_DEFAULT}\]"                 # One-off execution (connection colour)
+	local _a="\[$(ppclr_conn_current)\]${PP_PROMPT_AT}\[${COLOR_DEFAULT}\]"   # One-off execution (connection colour)
 	local _h="\[\$(ppclr_load_current)\]\h\[${COLOR_DEFAULT}\]"               # Executed every prompt (load colour)
 	local _c="${PP_PROMPT_SPLITTER}"
 	local _w="\[\$(ppclr_wdperm_current)\]${_pwd}\[${COLOR_DEFAULT}\]"        # Executed every prompt (pwd permission colour)
@@ -516,6 +517,7 @@ set_bash_powerprompt()
 	local _t="" && [[ ( "${USE_TERM_TITLE}" == "1" && -z "${PP_SUPPRESS_TERM_TITLE}" ) ]] &&  _t="\[\$(pp_termtext)\]"  # Executed every prompt (terminal title setting escape codes)
 	
 	PS1="${_s}${_t}${_u}${_a}${_h}${_c}${_w}${_e}${_g}${_o}${_p} "
+
 	# Support for newer GIT for Windows packages
 	MSYS2_PS1="${_s}${_t}${_u}${_a}${_h}${_c}${_w}${_e}${_g}${_o}${_p} "
 

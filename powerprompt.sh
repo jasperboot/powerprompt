@@ -316,7 +316,7 @@ set_bash_powerprompt()
 			
 			parentPID=${PPID};
 			while [ "${parentPID}" -gt 1 ]; do
-				parent_process=$(cat /proc/${parentPID}/cmdline 2> /dev/null)
+				parent_process=$(xargs -0 -L1 -a /proc/${parentPID}/cmdline 2> /dev/null | head -1)
 				if [[ "${parent_process}" == in.*d* ]]; then
 					conclr=$1
 					break
@@ -474,7 +474,7 @@ set_bash_powerprompt()
 	[ ${#NUMBER_OF_PROCESSORS} -eq 0 ] && test -r /proc/cpuinfo && NUMBER_OF_PROCESSORS=$(grep -c "model name" /proc/cpuinfo)
 
 	# Check for title support of terminal
-	test \( "${TERM}" = "xterm" -o "${TERM#screen}" != "${TERM}" \) -a -z "${EMACS}" -a -z "${MC_SID}" && USE_TERM_TITLE=1
+	test \( "${TERM:0:5}" = "xterm" -o "${TERM#screen}" != "${TERM}" \) -a -z "${EMACS}" -a -z "${MC_SID}" && USE_TERM_TITLE=1
 
 	# Select the right pwd
 	local _pwd
@@ -516,6 +516,8 @@ set_bash_powerprompt()
 	local _t="" && [[ "${USE_TERM_TITLE}" == "1" ]] &&  _t="\[\$(pp_termtext)\]"  # Executed every prompt (terminal title setting escape codes)
 	
 	PS1="${_s}${_t}${_u}${_a}${_h}${_c}${_w}${_e}${_g}${_o}${_p} "
+	# Support for newer GIT for Windows packages
+	MSYS2_PS1="${_s}${_t}${_u}${_a}${_h}${_c}${_w}${_e}${_g}${_o}${_p} "
 
 	# Set Titlebar for Terminal emulators when inside tmux session
 	if [ "$TERM" = "screen" ] && [ -n "$TMUX" ]; then

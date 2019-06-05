@@ -366,6 +366,44 @@ set_bash_powerprompt()
 		echo -n "${CONNECTION_CLR}"
 	}
 	
+	ppclr_get_colorcode_for_checksum()
+	{
+	    checksum=$1;
+	    noRedsAndBlacks=${2:-0};
+
+	    clr_checksum=$(($checksum % (6*6*6)));
+	    colorcode=$((16 + ${clr_checksum}));
+
+	    if [ $noRedsAndBlacks -gt 0 ]; then
+
+		r=$(($clr_checksum / 36))
+		g=$((($clr_checksum % 36) / 6))
+		b=$(($clr_checksum % 6))
+
+		if [ "$(($g+$b))" -eq "0" ]; then
+		    # red-onlies, cycle brights of the 16-color palette
+		    colorcode=$(($r+10))
+		elif [ "$(($r+$g+$b))" -lt "3" ]; then
+		    case $((($r * 36) + ($g * 6) + $b)) in
+			#     RED     GREEN      BLUE
+			$((36 * 0  +  6 * 0  +  1 * 0)))
+			    colorcode=15; # Note: 15 gray i/o 8 'bold black' because of visibility
+			    ;;
+			$((36 * 0  +  6 * 0  +  1 * 1)))
+			    colorcode=12; # Blue
+			    ;;
+			$((36 * 0  +  6 * 0  +  1 * 2)))
+			    colorcode=14; # Cyan
+			    ;;
+			$((36 * 0  +  6 * 1  +  1 * 0)))
+			    colorcode=10; # Green
+			    ;;
+		    esac
+		fi
+	    fi
+	    printf $colorcode;
+	}
+
 	pp_prompt_sign()
 	{
 		# Set prompt sign depending on the user
@@ -420,6 +458,9 @@ set_bash_powerprompt()
 	local COLOR_BOLD='\e[1m'
 	local COLOR_DEFAULT='\e[0m'
 	local COLOR_INVERSE='\e[7m'
+
+	# Setup a colorcode specific for this HOSTNAME that can be used (e.g. for PPCLR_LOAD_NORMAL) [when using a 256 colors term]
+	local COLOR_HOSTNAME="\e[38;5;$(ppclr_get_colorcode_for_checksum $((10#$(echo -n ${HOSTNAME:-localhost} | sum | cut -d " " -f 1))) 1)m"
 
 	# Set default configuration
 	# Override these in /etc/powerprompt.conf and/or ~/.powerprompt.conf and/or ~/.config/powerprompt.conf

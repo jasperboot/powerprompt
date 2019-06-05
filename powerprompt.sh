@@ -24,7 +24,10 @@
 #   Red	      == LoadAvg/#cores last 5 minutes >= 1.0
 #   Yellow    == LoadAvg/#cores last 5 minutes >= 0.7
 #   Default   == LoadAvg/#cores last 5 minutes <  0.7
-# GIT SECTION (only shows when git-completion is installed and when pwd is in a git repo)
+# GIT SECTION (only shows when a supported git-prompt script is installed and when pwd is in a git repo)
+# - posh-git-sh (https://github.com/lyze/posh-git-sh), using __posh_git_echo:
+#    [gitinfo]   === Show current git branch and a lot more info (in multiple colors, see posh_git_sh documentation)
+# - default git-prompt (in git-completion), using __git_ps1
 #    (branch)    === Shows current git branch
 # DYNAMIC SECTION
 #    (Yellow; If count is zero for any of the following, it will not appear)
@@ -510,7 +513,7 @@ set_bash_powerprompt()
 	local _c="${PP_PROMPT_SPLITTER}"
 	local _w="\[\$(ppclr_wdperm_current)\]${_pwd}\[${COLOR_DEFAULT}\]"        # Executed every prompt (pwd permission colour)
 	local _e="${PP_PROMPT_END}"
-	local _g="" && type -t __git_ps1 >/dev/null 2>&1 && _g="\$(__git_ps1 \"${PP_GITINFO_FORMAT:- (%s)}\")" # Executed every prompt (git details)
+	local _g="" && type -t __posh_git_echo >/dev/null 2>&1 && _g="\$(echo -en \"\$(echo -en \"\$(__posh_git_echo)\" | sed 's/^\(.\)/ \1/' | sed 's/\\\\\\\\\\\\[/\001/g' | sed 's/\\\\\\\\]/\002/g' )\")" || { type -t __git_ps1 >/dev/null 2>&1 && _g="\$(__git_ps1 \"${PP_GITINFO_FORMAT:- (%s)}\")"; } # Executed every prompt (git details)
 	local _o="\[${PPCLR_OPTIONALS}\]\$(pp_optional_info)\[${COLOR_DEFAULT}\]" # Executed every prompt (detached screens and jobs)
 	local _p="\[${PPCLR_USER_CURRENT}\]$(pp_prompt_sign)\[${COLOR_DEFAULT}\]" # One-off execution (prompt sign)
 	# Set Titlebar part for Terminal emulators

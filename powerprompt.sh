@@ -369,12 +369,12 @@ set_bash_powerprompt()
 	ppclr_get_colorcode_for_checksum()
 	{
 	    checksum=$1;
-	    noRedsAndBlacks=${2:-0};
+	    noRedsAndDarks=${2:-0};
 
 	    clr_checksum=$(($checksum % (6*6*6)));
 	    colorcode=$((16 + ${clr_checksum}));
 
-	    if [ $noRedsAndBlacks -gt 0 ]; then
+	    if [ $noRedsAndDarks -gt 0 ]; then
 
 		r=$(($clr_checksum / 36))
 		g=$((($clr_checksum % 36) / 6))
@@ -384,6 +384,7 @@ set_bash_powerprompt()
 		    # red-onlies, cycle brights of the 16-color palette
 		    colorcode=$(($r+10))
 		elif [ "$(($r+$g+$b))" -lt "3" ]; then
+		    # almost-blacks, change to reasonable colors
 		    case $((($r * 36) + ($g * 6) + $b)) in
 			#     RED     GREEN      BLUE
 			$((36 * 0  +  6 * 0  +  1 * 0)))
@@ -399,6 +400,18 @@ set_bash_powerprompt()
 			    colorcode=10; # Green
 			    ;;
 		    esac
+		elif [ "$(($r+$g+$b))" -lt "6" ]; then
+		    # very dark colors that don't work on (almost-)black backgrounds
+		    if [ "$r" -gt "0" ]; then
+		        r=$(($r + 2));
+		    fi
+		    if [ "$g" -gt "0" ]; then
+		        g=$(($g + 2));
+		    fi
+		    if [ "$b" -gt "0" ]; then
+		        b=$(($b + 2));
+		    fi
+		    colorcode=$((16 + ($r * 36) + ($g * 6) + ($b * 1)));
 		fi
 	    fi
 	    printf $colorcode;
